@@ -6,6 +6,8 @@
 <title>פריז | 22–26 נובמבר</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
   :root{
     --bg:#12172a;
@@ -69,11 +71,13 @@
     position:sticky; top:0; z-index:20;
     display:flex; gap:6px; padding:10px 14px; backdrop-filter:blur(8px);
     background:rgba(18,23,42,0.9); border-bottom:1px solid var(--line);
+    overflow-x:auto; -webkit-overflow-scrolling:touch;
   }
+  nav.tabs::-webkit-scrollbar{ display:none; }
   nav.tabs button{
-    flex:1; padding:10px 6px; border-radius:12px; border:1px solid transparent;
+    flex:0 0 auto; padding:10px 14px; border-radius:12px; border:1px solid transparent;
     background:transparent; color:var(--text-dim); font-family:'Inter',sans-serif;
-    font-size:13px; font-weight:600; cursor:pointer; transition:.15s;
+    font-size:13px; font-weight:600; cursor:pointer; transition:.15s; white-space:nowrap;
   }
   nav.tabs button.active{ background:var(--card-2); color:var(--gold-soft); border-color:var(--line); }
 
@@ -207,6 +211,76 @@
 
   footer{ text-align:center; color:var(--text-dim); font-size:11px; padding:20px; }
 
+  .widgets-row{ display:flex; gap:10px; margin-bottom:10px; }
+  .widget-card{
+    flex:1; background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:14px; text-align:center; cursor:pointer;
+  }
+  .widget-label{ font-size:10.5px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.08em; }
+  .widget-main{ font-family:'Fraunces',serif; font-size:24px; font-weight:700; color:var(--gold-soft); margin:4px 0 2px; }
+  .widget-sub{ font-size:11px; color:var(--text-dim); }
+  .currency-conv{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:14px; margin-bottom:18px; display:flex; align-items:center; gap:10px;
+  }
+  .conv-row{ flex:1; display:flex; align-items:center; gap:8px; background:var(--bg-2); border:1px solid var(--line); border-radius:10px; padding:8px 12px;}
+  .conv-row input{ flex:1; background:none; border:none; color:var(--text); font-size:16px; font-family:'IBM Plex Mono',monospace; width:100%; }
+  .conv-row input:focus{ outline:none; }
+  .conv-label{ font-size:11px; color:var(--text-dim); font-weight:700; }
+  .conv-icon{ color:var(--gold-soft); font-size:16px; }
+
+  #leaflet-map{ width:100%; height:60vh; min-height:380px; border-radius:16px; border:1px solid var(--line); overflow:hidden; }
+  .leaflet-popup-content-wrapper{ background:var(--card); color:var(--text); border-radius:12px; }
+  .leaflet-popup-tip{ background:var(--card); }
+  .map-popup-title{ font-weight:700; font-size:13.5px; margin-bottom:4px; }
+  .map-popup-link{ color:var(--gold-soft); font-size:12px; text-decoration:underline; }
+  .custom-pin{ background:transparent; border:none; }
+  .pin-body{
+    width:32px; height:32px; border-radius:50%; margin:0 auto;
+    display:flex; align-items:center; justify-content:center; font-size:16px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.5); border:2px solid rgba(255,255,255,0.9);
+  }
+  .pin-point{
+    width:0; height:0; margin:0 auto;
+    border-left:6px solid transparent; border-right:6px solid transparent; border-top:8px solid;
+  }
+
+  .doc-card{
+    background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:14px; margin-bottom:10px;
+  }
+  .doc-card .doc-icon{ font-size:20px; margin-left:8px; }
+  .doc-card .doc-title{ font-weight:700; font-size:14px; display:flex; align-items:center; gap:8px; }
+  .doc-card .doc-notes{ font-size:12.5px; color:var(--text-dim); margin-top:6px; line-height:1.5; }
+  .intro-text{ font-size:13.5px; line-height:1.8; color:var(--text); margin-bottom:6px; }
+
+  .timeline-box{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:6px 16px; margin-bottom:20px;
+  }
+  .tl-row{ display:flex; gap:12px; padding:12px 0; border-bottom:1px dashed var(--line); }
+  .tl-row:last-child{ border-bottom:none; }
+  .tl-year{ font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--gold-soft); font-weight:700; min-width:88px; flex-shrink:0; padding-top:1px; }
+  .tl-text{ font-size:12.5px; color:var(--text-dim); line-height:1.6; }
+
+  .info-card{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    margin-bottom:12px; overflow:hidden;
+  }
+  .info-head{
+    display:flex; align-items:center; gap:10px; padding:13px 16px; cursor:pointer;
+  }
+  .info-icon{ font-size:20px; flex-shrink:0; }
+  .info-title{ flex:1; font-weight:700; font-size:14px; }
+  .info-sub{ font-size:11.5px; color:var(--gold-soft); margin-top:2px; }
+  .info-card .chev{ color:var(--text-dim); font-size:13px; transition:.2s; }
+  .info-card.open .chev{ transform:rotate(90deg); }
+  .info-body{ display:none; padding:0 16px 16px; font-size:12.5px; color:var(--text-dim); line-height:1.75; }
+  .info-card.open .info-body{ display:block; }
+  .info-day-tag{
+    display:inline-block; margin-top:10px; font-size:11px; color:var(--ember); font-weight:700;
+  }
+
   .place-card{ cursor:pointer; transition:.15s; }
   .place-card:active{ transform:scale(0.98); background:var(--card-2); }
 
@@ -248,9 +322,11 @@
 
 <nav class="tabs">
   <button class="active" data-tab="itinerary">המסלול</button>
+  <button data-tab="about">פריז</button>
   <button data-tab="places">מקומות</button>
-  <button data-tab="near">קרוב אליי</button>
+  <button data-tab="map">מפה</button>
   <button data-tab="flights">טיסות</button>
+  <button data-tab="docs">מסמכים</button>
 </nav>
 
 <main>
@@ -264,36 +340,96 @@
         <div class="addr">61 Rue Dauphine, Saint-Germain-des-Prés</div>
       </div>
     </div>
+
+    <div class="widgets-row">
+      <div class="widget-card" id="weather-widget">
+        <div class="widget-label">מזג אוויר · פריז</div>
+        <div class="widget-main" id="weather-main">⏳</div>
+        <div class="widget-sub" id="weather-sub">טוען…</div>
+      </div>
+      <div class="widget-card" id="currency-widget">
+        <div class="widget-label">שער חליפין</div>
+        <div class="widget-main" id="currency-main">⏳</div>
+        <div class="widget-sub" id="currency-sub">טוען…</div>
+      </div>
+    </div>
+    <div class="currency-conv" id="currency-conv" style="display:none;">
+      <div class="conv-row">
+        <input type="number" id="conv-eur" placeholder="0" oninput="convertFrom('eur')">
+        <span class="conv-label">EUR</span>
+      </div>
+      <div class="conv-icon">⇅</div>
+      <div class="conv-row">
+        <input type="number" id="conv-ils" placeholder="0" oninput="convertFrom('ils')">
+        <span class="conv-label">₪ ILS</span>
+      </div>
+    </div>
+
     <div id="days"></div>
   </section>
 
-  <!-- PLACES -->
-  <section class="view" id="view-places">
-    <div class="near-controls">
-      <div class="chips" id="places-cat-filters"></div>
-    </div>
-    <div class="section-label">הרשימה שלנו</div>
-    <div id="places-list"></div>
+  <!-- MAP -->
+  <section class="view" id="view-map">
+    <div class="section-label">כל המקומות על מפה אחת</div>
+    <div id="leaflet-map"></div>
   </section>
 
-  <!-- NEAR ME -->
-  <section class="view" id="view-near">
+  <!-- PLACES (with proximity) -->
+  <section class="view" id="view-places">
     <div class="near-controls">
       <button class="btn" onclick="locateMe()">📍 בדוק איפה אני</button>
       <div class="status" id="loc-status">לא בדקנו מיקום עדיין</div>
       <div class="hint">
         💡 האפליקציה רצה כאתר אמיתי ב-Safari — בקשת המיקום תופיע כרגיל, פשוט אשרו גישה למיקום כשיוצג הפופ-אפ.
       </div>
-      <div class="chips" id="cat-filters"></div>
+      <div class="chips" id="places-cat-filters"></div>
     </div>
-    <div class="section-label">מהקרוב לרחוק</div>
-    <div id="near-list"></div>
+    <div class="section-label" id="places-list-label">הרשימה שלנו</div>
+    <div id="places-list"></div>
   </section>
 
   <!-- FLIGHTS -->
   <section class="view" id="view-flights">
     <div class="section-label">כרטיסי הטיסה שלנו</div>
     <div id="flights-list"></div>
+  </section>
+
+  <!-- ABOUT PARIS -->
+  <section class="view" id="view-about">
+    <div class="intro-text">
+      פריז לא נבנתה ביום — היא נבנתה על גדות הסן במשך יותר מ-2,000 שנה, שכבה על גבי שכבה: כפר דייגים קלטי, עיר לגיונרים רומית, בירה מלכותית של ימי הביניים, זירת מהפכה דמים, ולבסוף הפריז המוכרת של השדרות הרחבות והבניינים האפורים-קרם שכולנו מדמיינים כשחושבים על העיר. הרקע הבא נותן לכם קונטקסט לכל מקום שתראו במסלול — למה השכונות כל כך שונות זו מזו, ולמה דווקא האתרים האלה הם אלה שכולם באים לראות.
+    </div>
+
+    <div class="section-label">ציר זמן — פריז לאורך הדרך</div>
+    <div class="timeline-box">
+      <div class="tl-row"><span class="tl-year">המאה ה-3 לפנה"ס</span><span class="tl-text">שבט קלטי בשם הפריזיאי (Parisii) מקים כפר דייגים על אי קטן שבלב הסן — היום ה-Île de la Cité, שם תבקרו ביום השלישי. השם "פריז" עצמו נגזר מהשבט הזה.</span></div>
+      <div class="tl-row"><span class="tl-year">52 לפנה"ס</span><span class="tl-text">הרומאים כובשים את היישוב במסגרת כיבוש גאליה בידי יוליוס קיסר, ומקימים עיר לגיונרים בשם לוטציה (Lutetia) — עם רחובות בתבנית רשת, אמפיתיאטרון ומרחצאות, בעיקר על הגדה השמאלית של הסן, שם נמצא היום הרובע הלטיני.</span></div>
+      <div class="tl-row"><span class="tl-year">המאה ה-5–10</span><span class="tl-text">לאחר נפילת האימפריה הרומית העיר מתכווצת בחזרה לאי, ומתבססת כמרכז דתי־פוליטי תחת השבטים הפרנקים. קלוביס הראשון, מלך הפרנקים, הופך אותה לבירתו במאה ה-6.</span></div>
+      <div class="tl-row"><span class="tl-year">ימי הביניים (המאות 12–14)</span><span class="tl-text">פריז הופכת לבירת ממלכת צרפת של ממש. נבנים נוטרדאם (החל מ-1163), הלובר כמבצר הגנה על הנהר, וב-1257 מוקמת הסורבון — האוניברסיטה שהולידה את שמו ואת אופיו של הרובע הלטיני, שנקרא כך כי הלטינית הייתה שפת הלימוד וההוראה שם.</span></div>
+      <div class="tl-row"><span class="tl-year">1789–1799</span><span class="tl-text">המהפכה הצרפתית פורצת. מבצר הבסטיליה נופל ב-14 ביולי, לואי ה-16 ומארי אנטואנט מוצאים להורג, והמלוכה מתמוטטת. פריז הופכת לסמל עולמי של מהפכה, שוויון וחירות — והלובר, שהיה ארמון מלכותי, נפתח כמוזיאון ציבורי ב-1793.</span></div>
+      <div class="tl-row"><span class="tl-year">1804–1815</span><span class="tl-text">נפוליאון בונפרטה מכריז את עצמו לקיסר, ומתחיל בפרויקטים אדריכליים גרנדיוזיים שנועדו להנציח את שלטונו — כולל שער הניצחון, שהוזמן ב-1806 אך יושלם רק עשרים שנה אחר כך.</span></div>
+      <div class="tl-row"><span class="tl-year">1853–1870</span><span class="tl-text">הברון האוסמן, בהוראת נפוליאון השלישי, מבצע את "השיפוץ הגדול של פריז": הורס שכונות עוני צפופות וימי־ביניימיות ובונה מחדש את העיר לפי תכנון אחיד — השדרות הרחבות, הבניינים הקלאסיים באבן קרם עם גובה וקו־גג אחידים, מערכת ביוב מודרנית, והכיכרות הגדולות שמזוהות היום כ"פריז הקלאסית". שאנז-אליזה מקבלת את צורתה הנוכחית באותה תקופה.</span></div>
+      <div class="tl-row"><span class="tl-year">1889</span><span class="tl-text">מגדל אייפל נבנה בתוך כשנתיים כשער כניסה זמני לתערוכה העולמית, לרגל 100 שנה למהפכה הצרפתית. תוכנן להיהרס כעבור 20 שנה בלבד — גוסטב אייפל הציל אותו בכך ששכנע שהוא שימושי כתחנת שידור. בתקופתו נחשב מכוער בעיני חלק גדול מהאליטה התרבותית של העיר, שראתה בו "מגדל של ברזל ואשפה".</span></div>
+      <div class="tl-row"><span class="tl-year">תחילת המאה ה-20</span><span class="tl-text">פריז הופכת למרכז עולמי של אמנות ובוהמה — פיקאסו, מודיליאני והמינגוויי חיים ויוצרים בה, ובתי הקפה של Saint-Germain-des-Prés וה-Marais מתמלאים באמנים וסופרים.</span></div>
+      <div class="tl-row"><span class="tl-year">1940–1944</span><span class="tl-text">כיבוש נאצי בזמן מלחמת העולם השנייה. העיר משוחררת ב-1944, וב-1968 מתחוללות בה מהומות סטודנטים ופועלים ("מאי 68") שהשפיעו על התרבות המערבית כולה.</span></div>
+      <div class="tl-row"><span class="tl-year">2019–2024</span><span class="tl-text">שרפה קשה ב-2019 פוגעת בגג ובצריח של נוטרדאם ומאיימת להרוס אותה כליל. הקתדרלה משוחזרת בפרויקט עצום ונפתחת מחדש בסוף 2024 — כך שהביקור שלכם בה הוא פחות משנתיים אחרי פתיחתה מחדש.</span></div>
+      <div class="tl-row"><span class="tl-year">היום</span><span class="tl-text">פריז היא אחת הערים המבוקרות בעולם, בירת אופנה, אמנות וגסטרונומיה. מדי חורף היא מתקשטת בתאורת חג ובשווקי כריסמס — בדיוק כמו בטיול שלכם.</span></div>
+    </div>
+
+    <div class="section-label">השכונות שלכם</div>
+    <div id="about-neighborhoods"></div>
+
+    <div class="section-label">האתרים שבמסלול</div>
+    <div id="about-sites"></div>
+
+    <div class="section-label">קצת רקע על מה שאוכלים</div>
+    <div id="about-food"></div>
+  </section>
+
+  <!-- DOCUMENTS -->
+  <section class="view" id="view-docs">
+    <div class="section-label">כספת המסמכים שלנו</div>
+    <div id="docs-list"></div>
   </section>
 
 </main>
@@ -336,7 +472,8 @@ document.querySelectorAll('nav.tabs button').forEach(btn=>{
     document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('view-'+btn.dataset.tab).classList.add('active');
-    if(btn.dataset.tab === 'near') renderNear();
+    if(btn.dataset.tab === 'places') renderPlaces();
+    if(btn.dataset.tab === 'map') initMap();
   });
 });
 
@@ -463,6 +600,7 @@ loadChecklist();
 
 /* ---------------- Places (fixed list — edited directly in the code) ---------------- */
 let activePlacesCat = 'הכל';
+let myLoc = null;
 
 const places = [
   {id:'p-seed-1', name:'Dunes Blanches', lat:48.859848, lng:2.3568578, cat:'אוכל', notes:'פחזניות קטנות ומתוקות'},
@@ -485,23 +623,210 @@ function setPlacesCat(c){ activePlacesCat = c; renderPlacesCatFilters(); renderP
 function renderPlaces(){
   renderPlacesCatFilters();
   const wrap = document.getElementById('places-list');
-  const list = places.filter(p => activePlacesCat==='הכל' || p.cat===activePlacesCat);
+  const label = document.getElementById('places-list-label');
+  let list = places.filter(p => activePlacesCat==='הכל' || p.cat===activePlacesCat);
   if(list.length === 0){ wrap.innerHTML = '<div class="empty">אין מקומות בקטגוריה הזו</div>'; return; }
-  wrap.innerHTML = list.map(p=>`
-    <div class="place-card" onclick="openPlaceModal('${p.id}')">
-      <div>
-        <div class="p-name">${catEmoji(p.cat)} ${p.name}</div>
-        <div class="p-cat">${p.cat}</div>
-        ${p.notes ? `<div class="p-notes">${p.notes}</div>` : ''}
+
+  if(myLoc){
+    label.textContent = 'מהקרוב לרחוק';
+    list = list.map(p=>({...p, dist: haversine(myLoc.lat, myLoc.lng, p.lat, p.lng)}))
+               .sort((a,b)=>a.dist-b.dist);
+    wrap.innerHTML = list.map(p=>`
+      <div class="place-card" onclick="openPlaceModal('${p.id}')">
+        <div>
+          <div class="p-name">${catEmoji(p.cat)} ${p.name}</div>
+          <div class="p-cat">${p.cat}</div>
+          ${p.notes ? `<div class="p-notes">${p.notes}</div>` : ''}
+        </div>
+        <div class="p-dist">${p.dist < 1 ? Math.round(p.dist*1000)+' מ׳' : p.dist.toFixed(1)+' ק"מ'}</div>
+      </div>
+    `).join('');
+  } else {
+    label.textContent = 'הרשימה שלנו';
+    wrap.innerHTML = list.map(p=>`
+      <div class="place-card" onclick="openPlaceModal('${p.id}')">
+        <div>
+          <div class="p-name">${catEmoji(p.cat)} ${p.name}</div>
+          <div class="p-cat">${p.cat}</div>
+          ${p.notes ? `<div class="p-notes">${p.notes}</div>` : ''}
+        </div>
+      </div>
+    `).join('');
+  }
+}
+renderPlaces();
+
+/* ---------------- Weather (Open-Meteo, no key needed) ---------------- */
+const weatherIcons = {
+  0:['☀️','שמיים בהירים'], 1:['🌤️','בהיר ברובו'], 2:['⛅','מעונן חלקית'], 3:['☁️','מעונן'],
+  45:['🌫️','ערפל'], 48:['🌫️','ערפל קופא'],
+  51:['🌦️','טפטוף קל'], 53:['🌦️','טפטוף'], 55:['🌧️','טפטוף חזק'],
+  61:['🌧️','גשם קל'], 63:['🌧️','גשם'], 65:['🌧️','גשם חזק'],
+  71:['🌨️','שלג קל'], 73:['🌨️','שלג'], 75:['❄️','שלג כבד'],
+  80:['🌦️','ממטרים'], 81:['🌧️','ממטרים חזקים'], 82:['⛈️','ממטרים עזים'],
+  95:['⛈️','סופת רעמים'], 96:['⛈️','סופת רעמים עם ברד'], 99:['⛈️','סופת רעמים חזקה'],
+};
+async function loadWeather(){
+  try{
+    const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=48.8566&longitude=2.3522&current_weather=true');
+    const data = await res.json();
+    const cw = data.current_weather;
+    const [icon, desc] = weatherIcons[cw.weathercode] || ['🌡️','—'];
+    document.getElementById('weather-main').textContent = `${icon} ${Math.round(cw.temperature)}°`;
+    document.getElementById('weather-sub').textContent = desc;
+  }catch(e){
+    document.getElementById('weather-main').textContent = '—';
+    document.getElementById('weather-sub').textContent = 'לא זמין כרגע';
+  }
+}
+loadWeather();
+
+/* ---------------- Currency (Frankfurter, no key needed) ---------------- */
+let eurToIls = null;
+async function loadCurrency(){
+  try{
+    const res = await fetch('https://api.frankfurter.app/latest?from=EUR&to=ILS');
+    const data = await res.json();
+    eurToIls = data.rates.ILS;
+    document.getElementById('currency-main').textContent = `1€ = ${eurToIls.toFixed(2)}₪`;
+    document.getElementById('currency-sub').textContent = 'לחצו להמרה';
+  }catch(e){
+    document.getElementById('currency-main').textContent = '—';
+    document.getElementById('currency-sub').textContent = 'לא זמין כרגע';
+  }
+}
+loadCurrency();
+document.getElementById('currency-widget').addEventListener('click', ()=>{
+  const box = document.getElementById('currency-conv');
+  box.style.display = box.style.display === 'none' ? 'flex' : 'none';
+});
+function convertFrom(src){
+  if(!eurToIls) return;
+  const eurEl = document.getElementById('conv-eur');
+  const ilsEl = document.getElementById('conv-ils');
+  if(src === 'eur'){
+    const v = parseFloat(eurEl.value);
+    ilsEl.value = isNaN(v) ? '' : (v * eurToIls).toFixed(2);
+  } else {
+    const v = parseFloat(ilsEl.value);
+    eurEl.value = isNaN(v) ? '' : (v / eurToIls).toFixed(2);
+  }
+}
+
+/* ---------------- Map (Leaflet + OpenStreetMap) ---------------- */
+let leafletMap = null;
+
+function pinIcon(emoji, bg){
+  return L.divIcon({
+    className: 'custom-pin',
+    html: `<div class="pin-body" style="background:${bg}">${emoji}</div><div class="pin-point" style="border-top-color:${bg}"></div>`,
+    iconSize: [34, 42],
+    iconAnchor: [17, 42],
+    popupAnchor: [0, -38],
+  });
+}
+
+function initMap(){
+  if(leafletMap){ setTimeout(()=>leafletMap.invalidateSize(), 50); return; }
+
+  leafletMap = L.map('leaflet-map', {zoomControl:true}).setView([48.8606, 2.3376], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap',
+    maxZoom: 19
+  }).addTo(leafletMap);
+
+  const bounds = [];
+  places.forEach(p=>{
+    const marker = L.marker([p.lat, p.lng], {icon: pinIcon(catEmoji(p.cat), '#c1543f')}).addTo(leafletMap);
+    const gUrl = `https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}&travelmode=walking`;
+    marker.bindPopup(`
+      <div class="map-popup-title">${catEmoji(p.cat)} ${p.name}</div>
+      <a class="map-popup-link" href="${gUrl}" target="_blank" rel="noopener">🧭 ניווט</a>
+    `);
+    bounds.push([p.lat, p.lng]);
+  });
+
+  const hotelLatLng = [48.8566, 2.3387];
+  L.marker(hotelLatLng, {title:'Hôtel Le Régent', icon: pinIcon('🏨', '#e3b25e')}).addTo(leafletMap)
+    .bindPopup('<div class="map-popup-title">🏨 Hôtel Le Régent Paris</div>');
+  bounds.push(hotelLatLng);
+
+  if(bounds.length) leafletMap.fitBounds(bounds, {padding:[30,30]});
+  setTimeout(()=>leafletMap.invalidateSize(), 100);
+}
+
+/* ---------------- Document vault (fixed list — filled in directly in the code) ---------------- */
+const documents = [
+  // דוגמה למבנה שנוסיף כשתשלחו פרטים:
+  // {icon:'🛂', title:'דרכון — רון', notes:'תוקף עד ...', link:''},
+];
+function renderDocs(){
+  const wrap = document.getElementById('docs-list');
+  if(documents.length === 0){
+    wrap.innerHTML = '<div class="empty">עדיין אין מסמכים שמורים — שלחו לי צילום או פרטים (דרכון, ביטוח נסיעות, אישורי הזמנה) ואוסיף אותם ישירות לכספת</div>';
+    return;
+  }
+  wrap.innerHTML = documents.map(d=>`
+    <div class="doc-card">
+      <div class="doc-title"><span class="doc-icon">${d.icon}</span>${d.title}</div>
+      ${d.notes ? `<div class="doc-notes">${d.notes}</div>` : ''}
+      ${d.link ? `<a href="${d.link}" target="_blank" rel="noopener">פתיחת המסמך ↗</a>` : ''}
+    </div>
+  `).join('');
+}
+renderDocs();
+
+/* ---------------- About Paris: neighborhoods & sites ---------------- */
+const neighborhoods = [
+  {icon:'🏨', title:'Saint-Germain-des-Prés', sub:'שם תגורו', body:'שכונה שנקראת על שם המנזר הבנדיקטיני העתיק שעומד בליבה — מהמנזרים הראשונים בפריז, שממנו נותרה כנסייה רומנסקית מהמאה ה-11. מהמאה ה-19 ואילך הפכה לשכונת האמנים והאינטלקטואלים המובהקת של העיר: כאן ישבו סארטר, דה בובואר, קאמי והמינגוויי בבתי הקפה, מתווכחים על פילוסופיה ופוליטיקה עד השעות הקטנות. Café de Flore ו-Les Deux Magots, שני בתי הקפה ההיסטוריים ביותר של השכונה, עדיין פועלים באותם המקומות. היום זו אחת השכונות היוקרתיות בפריז — רחובות צרים ואבן ישנה, גלריות אמנות וגלריית ספרים, בוטיקים מעוצבים, ושקט יחסי למרות המיקום המרכזי. המלון שלכם, Hôtel Le Régent, יושב ממש בלב האזור, במרחק הליכה מכל זה.'},
+  {icon:'🕍', title:'Le Marais', sub:'יום שני', body:'אחת השכונות העתיקות ביותר בפריז ששרדה כמעט ללא פגע את שיפוצי הברון האוסמן במאה ה-19 — ולכן הרחובות שם עדיין צרים ומפותלים, בסגנון פריזאי טרום-מודרני, שונה לגמרי מהשדרות הרחבות שמזוהות עם שאר העיר. השם "Marais" פירושו "ביצה", כי במקור זה היה שטח ביצתי מוצף שיובש בימי הביניים. מהמאה ה-16 התיישבה כאן האצולה, ונבנו הארמונות הפרטיים (hôtels particuliers) שרבים מהם עדיין עומדים. היסטורית זו הייתה גם השכונה היהודית המרכזית של פריז — רחוב Rue des Rosiers עדיין מלא בבתי כנסת, מאפיות ומסעדות פלאפל ובורקס ותיקות. היום זה גם מרכז אופנה עכשווית, גלריות אמנות עצמאיות, וסצנת אוכל רחוב תוססת — בדיוק המקום שבו תעשו את סיור הטעימות שלכם.'},
+  {icon:'⛪', title:'Île de la Cité והרובע הלטיני', sub:'יום שלישי', body:'ה-Île de la Cité הוא בעצם המקום שבו פריז נולדה — כאן התיישב שבט הפריזיאי לפני יותר מ-2,000 שנה, וכאן הקימו הרומאים את לוטציה. על האי עומדים נוטרדאם, סנט-שאפל וה-Conciergerie (שהייתה ארמון מלכותי ולאחר מכן בית כלא בזמן המהפכה — מארי אנטואנט נכלאה בו לפני הוצאתה להורג). מעבר לגשר Petit Pont, על הגדה השמאלית, נפתח הרובע הלטיני — ששמו ניתן לו כי הלטינית שימשה שפת ההוראה הרשמית בסורבון בימי הביניים. זו הייתה, ועדיין, שכונת הסטודנטים והספרים: סמטאות צרות, חנויות ספרים ישנות (כולל Shakespeare and Company האגדית), ובתי קפה עם מחירים סבירים יותר משאר העיר. Jardin du Luxembourg, הגן הגדול והמטופח בקצה השכונה, נבנה במאה ה-17 עבור מארי דה מדיצ׳י ומשמש כיום כ"חצר האחורית" של הסטודנטים והתושבים המקומיים.'},
+  {icon:'🛍️', title:'שאנז-אליזה וטרוקדרו', sub:'יום ראשון וחמישי', body:'השדרה המפורסמת בעולם, שאנז-אליזה ("שדות אליזיום" - גן העדן היווני), קיבלה את צורתה הרחבה והמסודרת הנוכחית כחלק משיפוצי הברון האוסמן, ומחברת בין כיכר הקונקורד לשער הניצחון על פני כ-1.9 ק"מ. היא נחשבת "השדרה היפה בעולם", ומרכזת בתי אופנה יוקרתיים, קולנוע וקפה — לצד רשתות בינלאומיות. טרוקדרו, מהצד השני של הסן מול מגדל אייפל, הוא כיכר וגני מדרגות שנבנו במקור עבור התערוכה העולמית של 1937 (Palais de Chaillot, שני האגפים המעוקלים, נבנה אז). מטרוקדרו נשקפת התצפית הקלאסית והמצולמת ביותר על מגדל אייפל — ובגלל זה זה בדיוק המקום שאליו תגיעו לראות אותו מנצנץ.'},
+  {icon:'💎', title:'Place Vendôme וסביבתה', sub:'יום שני ורביעי', body:'כיכר מלכותית שנבנתה בסוף המאה ה-17 ביוזמת לואי ה-14, בתכנון אדריכלי אחיד ומהודר. במרכזה עמודת ניצחון (Colonne Vendôme) שנפוליאון הקים משריון תותחים כבושים, בהשראת עמוד טראיאנוס ברומא. היום הכיכר היא כתובת של בתי תכשיטים ואופנה עולמיים ומלונות היוקרה המפורסמים בעיר. באזור הסמוך, Avenue Montaigne, ממוקמים בתי האופנה הגדולים כמו Dior — שהחליט להקים כאן את הבית שלו ב-1946, ומאז הרחוב הפך לכתובת המרכזית של האופנה הגבוהה הצרפתית.'},
+];
+
+const sites = [
+  {icon:'🗼', title:'מגדל אייפל', day:'יום ראשון וחמישי', body:'נבנה בין 1887 ל-1889 בתוך כשנתיים בלבד, כשער כניסה זמני לתערוכה העולמית לרגל 100 שנה למהפכה הצרפתית. תוכנן להיהרס כעבור 20 שנה בלבד — גוסטב אייפל הציל אותו בכך ששכנע את הרשויות שהוא שימושי כתחנת שידור רדיו וטלגרף. בזמנו נחשב מכוער בעיני חלק ניכר מהאליטה התרבותית של פריז, וקבוצת אמנים וסופרים מפורסמים אף חתמה על עצומה נגד בנייתו וכינתה אותו "מגדל של ברזל ואשפה". גובהו 330 מטרים, והוא היה המבנה הגבוה בעולם עד 1930. היום זהו הסמל המזוהה ביותר עם פריז, עם כ-7 מיליון מבקרים בשנה, ומנצנץ כל שעה עגולה בלילה באלפי נורות תאורה מיוחדות שהוספו לכבוד המילניום ב-2000.'},
+  {icon:'✝️', title:'נוטרדאם', day:'יום שלישי', body:'הקתדרלה הגותית נבנתה במשך יותר מ-180 שנה, החל מ-1163 ועד אמצע המאה ה-13, ונחשבת לאחת הדוגמאות המוקדמות והמשפיעות ביותר לאדריכלות גותית באירופה — עם חלונות ורד ענקיים, כפילי תמיכה חיצוניים (flying buttresses) ופסלי גרגויל. נפוליאון הוכתר בה לקיסר ב-1804. ב-15 באפריל 2019 שרפה קשה פרצה בגג העץ העתיק וגרמה לקריסת הצריח (fleche) והגג כליל, ואיימה להרוס את המבנה כולו — תמונות השרפה עשו סיבוב עולמי. פרויקט שיקום עצום, במימון תרומות מרחבי העולם, השיב אותה לתפארתה, והיא נפתחה מחדש בדצמבר 2024 — כך שהביקור שלכם הוא פחות משנתיים אחרי אחד הרגעים המרגשים בהיסטוריה התרבותית של פריז בעשורים האחרונים.'},
+  {icon:'🌟', title:'Sainte-Chapelle', day:'יום שלישי', body:'קפלה מלכותית קטנה ומרשימה מהמאה ה-13 (הושלמה ב-1248), שהוזמנה על ידי המלך לואי התשיעי (לימים "לואי הקדוש") כדי לשכן שרידים קדושים שרכש מקיסר ביזנטיון — ובהם כתר קוצים לכאורה. מבחוץ היא צנועה יחסית וכמעט חבויה בחצר בתי המשפט; אבל בקומה העליונה, המיועדת לבני המלוכה בלבד, הקירות עשויים כמעט לגמרי מחלונות ויטראז׳ ענקיים בגובה 15 מטרים, המספרים סיפורי תנ"ך שלמים בלמעלה מ-1,100 סצנות צבעוניות. כשהשמש נכנסת, כל החלל מוצף באור צבעוני — נחשבת לאחת הדוגמאות היפות והשלמות בעולם לוויטראז׳ גותי מקורי.'},
+  {icon:'⚖️', title:'Conciergerie', day:'יום שלישי', body:'חלק מהארמון המלכותי המקורי על ה-Île de la Cité מימי הביניים, שהפך במאה ה-14 למושב הפרלמנט והמשפט של צרפת. בזמן המהפכה הצרפתית שימש כבית כלא לאסירים שהמתינו להוצאה להורג בגיליוטינה — ביניהם מארי אנטואנט עצמה, שנכלאה בתא צר וקר ממש כאן לפני שהובלה לגרדום. מכונה גם "האנטישאמבר של הגיליוטינה", בשל אלפי האסירים שעברו דרכו בשנות "שלטון הטרור".'},
+  {icon:'🖼️', title:'הלובר', day:'יום רביעי', body:'במקור מבצר צבאי מהמאה ה-12 שנבנה להגנה על העיר מפני פלישות מהצפון, שהורחב והפך בהדרגה לארמון מלכותי מפואר — ולבסוף, אחרי המהפכה הצרפתית, למוזיאון ציבורי שנפתח ב-1793 והציג את אוצרות האמנות שהוחרמו מהמלוכה והכנסייה. היום זהו המוזיאון המבוקר ביותר בעולם, עם אוסף של כ-380,000 פריטים (רק חלק קטן מוצג בכל רגע נתון), כולל המונה ליזה, ונוס דה מילו וניקת סמותרקי. הפירמידה הזכוכית המפורסמת בחצר, שתוכננה על ידי האדריכל האמריקאי-סיני איה מינג פיי, נחנכה רק ב-1989 ועוררה בזמנה ויכוח ציבורי סוער על שילוב מבנה מודרני וזכוכית בתוך ארמון היסטורי בן מאות שנים — היום היא כמעט לא פחות מזוהה עם המוזיאון מהיצירות שבפנים.'},
+  {icon:'🏛️', title:'שער הניצחון', day:'יום רביעי', body:'נבנה בהוראת נפוליאון ב-1806 לזכר ניצחונותיו הצבאיים ולהנצחת חייליו, בהשראת שערי הניצחון הרומיים העתיקים, אך הושלם רק ב-1836 — עשרים שנה אחרי קרב ווטרלו ואחרי שנפוליאון עצמו כבר לא היה בשלטון ואף נפטר בגלות. מתחתיו קבורה מאז 1921 "האש הנצחית" לזכר החייל האלמוני מהמלחמה העולמית הראשונה, שלא כבתה אף פעם מאז. מלמעלה, אחרי טיפוס של 284 מדרגות, נשקפת תצפית מרהיבה על שנים-עשר השדרות שנפגשות בכיכר Place Charles de Gaulle בצורת כוכב קורנת — כולל שאנז-אליזה, מה שהופך אותו לנקודת תצפית מבוקשת בשעת שקיעה.'},
+  {icon:'🎄', title:'Galeries Lafayette', day:'יום שני', body:'כלבו יוקרתי שנפתח ב-1912 על ידי שני בני דודים, תיאופיל בדר ואלפונס קאהן, שהחלו כחנות קטנה לגלנטריה ב-1893. הכלבו מפורסם בעיקר בזכות הכיפה (Coupole) — כיפת ויטראז׳ ענקית בסגנון ארט-נובו מעל הקומה המרכזית, שנבנתה ב-1912 ונחשבת יצירת אמנות אדריכלית בפני עצמה. בחודשי החורף נתלה מתחת לכיפה עץ חג מולד ענק מהתקרה עד הרצפה — אחד מסמלי הכריסמס הפריזאי המצולמים ביותר, לצד חלונות הראווה המעוצבים שמושכים תורי צופים.'},
+];
+
+const foodCulture = [
+  {icon:'🥐', title:'קרואסון וגאלט', body:'הקרואסון, להפתעת רבים, אינו המצאה צרפתית מקורית — שורשיו בקיפלך (kipferl) האוסטרי, ולפי אחת הגרסאות הובא לצרפת במאה ה-19. אבל הצרפתים אימצו אותו והפכו אותו לבסיס תרבות המאפייה שלהם, עם שכבות בצק חמאה מקופלות שיוצרות את המרקם הפריך-שכבתי המוכר. גאלט (Galette), לעומת זאת, היא צרפתית טהורה — מקורה בברטאן שבצפון-מערב צרפת, עשויה מקמח כוסמת (ולכן ללא גלוטן באופן טבעי), ומוגשת מלוחה עם ביצה, גבינה וירקות. בבריטאן נהוג להגיש אותה עם קרפ מתוק לקינוח — בדיוק כפי שתעשו בערב הראשון שלכם.'},
+  {icon:'☕', title:'תרבות בית הקפה', body:'בית הקפה הפריזאי הוא הרבה יותר ממקום לשתות קפה — זה מוסד חברתי ותיק שהתפתח מהמאה ה-17, כשקפה הובא לראשונה מהמזרח התיכון. עד המאה ה-20 בתי קפה כמו Café de Flore ו-Les Deux Magots בסן-ז׳רמן היו "משרדים" בלתי רשמיים לסופרים ופילוסופים, ששכרו שולחן לשעות ארוכות תמורת כוס קפה אחת. עד היום נהוג לשבת בבית קפה בלי למהר, וישיבה ליד החלון הפונה לרחוב (ולא בפנים) נחשבת המקום המבוקש — כדי לצפות בעוברים ושבים, בדיוק כמו שעשו הדיירים המפורסמים של השכונה.'},
+  {icon:'🍫', title:'שוקו חם בסגנון פריזאי', body:'השוקו החם הצרפתי הקלאסי (chocolat chaud) שונה במהותו מהגרסה המוכרת ממקומות אחרים — הוא סמיך ועשיר בהרבה, מוכן משוקולד מומס אמיתי ולא מאבקת קקאו, ולעיתים כמעט בטקסטורה של שוקולד נוזלי. אנז׳לינה, שתבקרו בה ביום הרביעי, נחשבת לאחת הכתובות ההיסטוריות המובילות לכך בפריז — המתכון שלה כמעט ולא השתנה מאז שנוסדה ב-1903, ומוגש עם קצפת בצד לערבב לפי הטעם.'},
+  {icon:'🧀', title:'פונדו ומטבח הרים', body:'למרות שהפונדו מזוהה עם שוויץ, הוא הפך פופולרי מאוד גם בצרפת, במיוחד באזורי ההרים (סבואה, ז׳ורה) שבהם מגדלים את הגבינות הקשות המתאימות להמסה — כמו קונטה וגרויאר. מסעדות פונדו בפריז, כמו Le Refuge des Fondus שברשימה שלכם, מציעות חוויה חברתית וחמימה במיוחד בחודשי החורף: סיר גבינה מבעבע במרכז השולחן, טובלים בו לחם על מזלג ארוך, ולרוב מלווה ביין לבן יבש — המשקה המסורתי שמונע מהגבינה "להתקשות" בבטן, כך טוענת האמונה המקומית.'},
+];
+
+function renderInfoCards(containerId, items){
+  const wrap = document.getElementById(containerId);
+  wrap.innerHTML = items.map((it, idx)=>`
+    <div class="info-card" data-idx="${idx}">
+      <div class="info-head" onclick="this.parentElement.classList.toggle('open')">
+        <div class="info-icon">${it.icon}</div>
+        <div style="flex:1">
+          <div class="info-title">${it.title}</div>
+          ${it.sub ? `<div class="info-sub">${it.sub}</div>` : ''}
+        </div>
+        <div class="chev">◀</div>
+      </div>
+      <div class="info-body">
+        ${it.body}
+        ${it.day ? `<div class="info-day-tag">📅 ${it.day}</div>` : ''}
       </div>
     </div>
   `).join('');
 }
-renderPlaces();
+renderInfoCards('about-neighborhoods', neighborhoods);
+renderInfoCards('about-sites', sites);
+renderInfoCards('about-food', foodCulture);
 
-/* ---------------- Near me ---------------- */
-let myLoc = null;
-let activeCat = 'הכל';
+
+/* ---------------- Location + distance ---------------- */
 
 function locateMe(){
   const status = document.getElementById('loc-status');
@@ -511,7 +836,7 @@ function locateMe(){
     myLoc = {lat:pos.coords.latitude, lng:pos.coords.longitude};
     const acc = Math.round(pos.coords.accuracy || 0);
     status.textContent = `מיקום עודכן ✓ (דיוק כ-${acc} מ׳)`;
-    renderNear();
+    renderPlaces();
   }, err=>{
     if(err.code === 1){
       status.textContent = 'ההרשאה למיקום נחסמה — צריך לאשר גישה למיקום להצג הזה בהגדרות הדפדפן/האפליקציה';
@@ -531,44 +856,6 @@ function haversine(lat1, lng1, lat2, lng2){
   const dLng = (lng2-lng1)*Math.PI/180;
   const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
   return R * 2*Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-}
-
-function renderCatFilters(){
-  const cats = ['הכל', ...new Set(places.map(p=>p.cat))];
-  document.getElementById('cat-filters').innerHTML = cats.map(c=>
-    `<div class="chip ${c===activeCat?'active':''}" onclick="setCat('${c}')">${c==='הכל'?'הכל':catEmoji(c)+' '+c}</div>`
-  ).join('');
-}
-function setCat(c){ activeCat = c; renderCatFilters(); renderNear(); }
-
-function renderNear(){
-  renderCatFilters();
-  const wrap = document.getElementById('near-list');
-  if(places.length === 0){ wrap.innerHTML = '<div class="empty">אין עדיין מקומות שמורים לבדיקה</div>'; return; }
-  let list = places.filter(p => activeCat==='הכל' || p.cat===activeCat);
-  if(!myLoc){
-    wrap.innerHTML = list.map(p=>`
-      <div class="place-card" onclick="openPlaceModal('${p.id}')">
-        <div>
-          <div class="p-name">${catEmoji(p.cat)} ${p.name}</div>
-          ${p.notes ? `<div class="p-notes">${p.notes}</div>` : ''}
-        </div>
-        <div class="p-dist">—</div>
-      </div>
-    `).join('');
-    return;
-  }
-  list = list.map(p=>({...p, dist: haversine(myLoc.lat, myLoc.lng, p.lat, p.lng)}))
-             .sort((a,b)=>a.dist-b.dist);
-  wrap.innerHTML = list.map(p=>`
-    <div class="place-card" onclick="openPlaceModal('${p.id}')">
-      <div>
-        <div class="p-name">${catEmoji(p.cat)} ${p.name}</div>
-        ${p.notes ? `<div class="p-notes">${p.notes}</div>` : ''}
-      </div>
-      <div class="p-dist">${p.dist < 1 ? Math.round(p.dist*1000)+' מ׳' : p.dist.toFixed(1)+' ק"מ'}</div>
-    </div>
-  `).join('');
 }
 
 /* ---------------- Place detail modal ---------------- */
